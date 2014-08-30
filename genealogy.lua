@@ -55,7 +55,8 @@ wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_pars
   if item_type == "genealogy" or
     item_type == "familytreemaker" or
     item_type == "familyorigins" then
-    if string.match(url, "/genealogy/") then
+    if string.match(url, "%.genealogy%.com/genealogy/") or
+      string.match(url, "%.familyorigins%.com/genealogy/")then
       --example url: http://www.genealogy.com/genealogy/users/s/c/h/Aaron-D-Scholl/
       local url_kind_url = string.match(url, "[a-z]+%.[a-z]+.com/genealogy/([^/]+)/[^/]+/[^/]+/[^/]+/[^/]+/")
       local url_first_url = string.match(url, "[a-z]+%.[a-z]+.com/genealogy/[^/]+/([^/]+)/[^/]+/[^/]+/[^/]+/")
@@ -71,11 +72,8 @@ wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_pars
       else
         return verdict
       end
-    elseif string.match(url, "%.jpg") or
-      string.match(url, "%.gif") or
-      string.match(url, "%.png") then
-      return verdict
-    else
+    elseif string.match(url, "%.genealogy%.com") or
+      string.match(url, "%.familyorigins%.com") then
       --example url: http://www.genealogy.com/users/s/c/h/Aaron-D-Scholl/
       local url_kind_url = string.match(url, "[a-z]+%.[a-z]+.com/([^/]+)/[^/]+/[^/]+/[^/]+/[^/]+/")
       local url_first_url = string.match(url, "[a-z]+%.[a-z]+.com/[^/]+/([^/]+)/[^/]+/[^/]+/[^/]+/")
@@ -91,6 +89,8 @@ wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_pars
       else
         return verdict
       end
+    else
+      return verdict
     end
   else
     return false
