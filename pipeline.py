@@ -193,10 +193,10 @@ class WgetArgs(object):
         item_name = item['item_name']
         assert ':' in item_name
         item_type, item_value = item_name.split(':', 1)
-
+        
         assert item_type
         assert item_value
-
+        
         item['item_type'] = item_type
         item['item_value'] = item_value
         
@@ -204,21 +204,54 @@ class WgetArgs(object):
         
         if item_type == "genealogy":
             if "users" in item_value:
+                assert ':' in item_name
                 url_kind, url_first, url_second, url_third, url_name = item_value.split(":")
+                assert url_kind
+                assert url_first
+                assert url_second
+                assert url_third
+                assert url_name
+                item['url_kind'] = url_kind
+                item['url_first'] = url_first
+                item['url_second'] = url_second
+                item['url_third'] = url_third
+                item['url_name'] = url_name
                 wget_args.append('http://www.genealogy.com/genealogy/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
                 wget_args.append('http://www.genealogy.com/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
             else:
                 raise Exception('Unknown item')
         elif item_type == "familytreemaker":
             if "users" in item_value:
+                assert ':' in item_name
                 url_kind, url_first, url_second, url_third, url_name = item_value.split(":")
+                assert url_kind
+                assert url_first
+                assert url_second
+                assert url_third
+                assert url_name
+                item['url_kind'] = url_kind
+                item['url_first'] = url_first
+                item['url_second'] = url_second
+                item['url_third'] = url_third
+                item['url_name'] = url_name
                 wget_args.append('http://familytreemaker.genealogy.com/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
                 wget_args.append('http://familytreemaker.genealogy.com/genealogy/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
             else:
                 raise Exception('Unknown item')
         elif item_type == "familyorigins":
             if "users" in item_value:
+                assert ':' in item_name
                 url_kind, url_first, url_second, url_third, url_name = item_value.split(":")
+                assert url_kind
+                assert url_first
+                assert url_second
+                assert url_third
+                assert url_name
+                item['url_kind'] = url_kind
+                item['url_first'] = url_first
+                item['url_second'] = url_second
+                item['url_third'] = url_third
+                item['url_name'] = url_name
                 wget_args.append('http://www.familyorigins.com/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
                 wget_args.append('http://www.familyorigins.com/genealogy/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
             else:
@@ -230,7 +263,7 @@ class WgetArgs(object):
             print('*** Wget will bind address at {0} ***'.format(
                 globals()['bind_address']))
             print('')
-
+        
         return realize(wget_args, item)
 
 ###########################################################################
