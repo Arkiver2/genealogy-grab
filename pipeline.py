@@ -56,9 +56,9 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = "20140827.04"
+VERSION = "20140830.01"
 USER_AGENT = 'ArchiveTeam'
-TRACKER_ID = 'swipnet'
+TRACKER_ID = 'genealogy'
 TRACKER_HOST = 'tracker.archiveteam.org'
 
 
@@ -145,7 +145,7 @@ def get_hash(filename):
 
 CWD = os.getcwd()
 PIPELINE_SHA1 = get_hash(os.path.join(CWD, 'pipeline.py'))
-LUA_SHA1 = get_hash(os.path.join(CWD, 'swipnet.lua'))
+LUA_SHA1 = get_hash(os.path.join(CWD, 'genealogy.lua'))
 
 
 def stats_id_function(item):
@@ -165,7 +165,7 @@ class WgetArgs(object):
             WGET_LUA,
             "-U", USER_AGENT,
             "-nv",
-            "--lua-script", "swipnet.lua",
+            "--lua-script", "genealogy.lua",
             "-o", ItemInterpolation("%(item_dir)s/wget.log"),
             "--no-check-certificate",
             "--output-document", ItemInterpolation("%(item_dir)s/wget.tmp"),
@@ -180,13 +180,16 @@ class WgetArgs(object):
             "--tries", "inf",
             "--span-hosts",
             "--waitretry", "30",
-            "--domains", "swipnet.se",
+            "--domains", "genealogy.se",
             "--warc-file", ItemInterpolation("%(item_dir)s/%(warc_file_base)s"),
             "--warc-header", "operator: Archive Team",
-            "--warc-header", "swipnet-dld-script-version: " + VERSION,
-            "--warc-header", ItemInterpolation("swipnet-user: %(item_name)s"),
+            "--warc-header", "genealogy-dld-script-version: " + VERSION,
+            "--warc-header", ItemInterpolation("genealogy-user: %(item_name)s"),
         ]
-
+        
+        #example item: genealogy:users:c:o:x:Helen-Cox-NJ
+        #example item: familytreemaker:users:s:c:h:Aaron-J-Schwartz
+        #example item: familyorigins:users:s:c:h:Beverly-G-Schweppe
         item_name = item['item_name']
         assert ':' in item_name
         item_type, item_value = item_name.split(':', 1)
@@ -196,11 +199,31 @@ class WgetArgs(object):
 
         item['item_type'] = item_type
         item['item_value'] = item_value
-
-        wget_args.append('http://{0}.swipnet.se/{1}/'.format(item_type, item_value))
-
-        # wget_args.append('http://home.swipnet.se/{0}/'.format(item_name))
-
+        
+        assert item_type in ("genealogy", "familytreemaker", "familyorigins")
+        
+        if item_type == "genealogy":
+            if "users" in item_value:
+                url_kind, url_first, url_second, url_third, url_name = item_value.split(":")
+                wget_args.append('http://www.genealogy.com/genealogy/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
+                wget_args.append('http://www.genealogy.com/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
+            else:
+                raise Exception('Unknown item')
+        elif item_type == "familytreemaker":
+            if "users" in item_value:
+                url_kind, url_first, url_second, url_third, url_name = item_value.split(":")
+                wget_args.append('http://familytreemaker.genealogy.com/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
+                wget_args.append('http://familytreemaker.genealogy.com/genealogy/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
+            else:
+                raise Exception('Unknown item')
+        elif item_type == "familyorigins":
+            if "users" in item_value:
+                url_kind, url_first, url_second, url_third, url_name = item_value.split(":")
+                wget_args.append('http://www.familyorigins.com/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
+                wget_args.append('http://www.familyorigins.com/genealogy/{0}/{1}/{2}/{3}/{4}/'.format(url_kind, url_first, url_second, url_third, url_name))
+            else:
+                raise Exception('Unknown item')
+        
         if 'bind_address' in globals():
             wget_args.extend(['--bind-address', globals()['bind_address']])
             print('')
@@ -216,20 +239,20 @@ class WgetArgs(object):
 # This will be shown in the warrior management panel. The logo should not
 # be too big. The deadline is optional.
 project = Project(
-    title="Swipnet",
+    title="Genealogy",
     project_html="""
-        <img class="project-logo" alt="Project logo" src="http://archiveteam.org/images/8/81/Frank_sheep_poses.jpg" height="50px" title=""/>
-        <h2>home.swipnet.se <span class="links"><a href="http://home.swipnet.se/">Website</a> &middot; <a href="http://tracker.archiveteam.org/swipnet/">Leaderboard</a></span></h2>
-        <p>Archiving Swedish websites from home.swipnet.se.</p>
+        <img class="project-logo" alt="Project logo" src="http://archiveteam.org/images/7/7c/Genealogy_Logo.gif" height="50px" title=""/>
+        <h2>www.genealogy.com <span class="links"><a href="http://www.genealogy.com/">Website</a> &middot; <a href="http://tracker.archiveteam.org/genealogy/">Leaderboard</a></span></h2>
+        <p>Archiving Genealogy homepages and datasets from www.genealogy.com.</p>
     """,
-    utc_deadline=datetime.datetime(2014, 8, 31, 23, 59, 0)
+    utc_deadline=datetime.datetime(2014, 9, 30, 23, 59, 0)
 )
 
 pipeline = Pipeline(
     CheckIP(),
     GetItemFromTracker("http://%s/%s" % (TRACKER_HOST, TRACKER_ID), downloader,
         VERSION),
-    PrepareDirectories(warc_prefix="swipnet"),
+    PrepareDirectories(warc_prefix="genealogy"),
     WgetDownload(
         WgetArgs(),
         max_tries=2,
