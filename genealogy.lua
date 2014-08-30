@@ -2,6 +2,11 @@ local url_count = 0
 local tries = 0
 local item_type = os.getenv('item_type')
 local item_value = os.getenv('item_value')
+local url_kind = os.getenv('url_kind')
+local url_first = os.getenv('url_first')
+local url_second = os.getenv('url_second')
+local url_third = os.getenv('url_third')
+local url_name = os.getenv('url_name')
 
 
 read_file = function(file)
@@ -19,31 +24,76 @@ wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_pars
   local url = urlpos["url"]["url"]
 
   -- Skip redirect from home.swipnet.se
-  if url == "http://www.tele2.se/" or
-    url == "http://tele2.se/" then
-    return false
-  elseif string.match(url, "cgi%.swipnet%.se/") then
-    return false
-  elseif string.match(url, "www%.swipnet%.se/") then
-    return false
-  elseif string.match(url, "irc%.swipnet%.se/") then
-    return false
-  elseif string.match(url, "//////////") then
-    return false
-  elseif string.match(url, "swipnet%.se/([^/]+)/") then
-    local directory_name = string.match(url, "swipnet%.se/([^/]+)/")
-    directory_name = string.gsub(directory_name, '%%7E', '~')
-    
-    if directory_name ~= item_value then
-      -- do not want someone else's homepage
-       -- io.stdout:write("\n Reject " .. url .. " " .. directory_name .. "\n")
-       -- io.stdout:flush()
+  if item_type == "genealogy" then
+    if string.match(url, "www%.familyorigins%.com") then
+      return false
+    elseif string.match(url, "familytreemaker%.genealogy%.com") then
+      return false
+    else
+      return verdict
+    end
+  elseif item_type == "familytreemaker" then
+    if string.match(url, "www%.familyorigins%.com") then
+      return false
+    elseif string.match(url, "www%.genealogy%.com") then
+      return false
+    else
+      return verdict
+    end
+  elseif item_type == "familyorigins" then
+    if string.match(url, "www%.genealogy%.com") then
+      return false
+    elseif string.match(url, "familytreemaker%.genealogy%.com") then
       return false
     else
       return verdict
     end
   else
-    return verdict
+    return false
+  end
+  
+  if item_type == "genealogy" or
+    item_type == "familytreemaker" or
+    item_type == "familyorigins" then
+    if string.match(url, "/genealogy/") then
+      --example url: http://www.genealogy.com/genealogy/users/s/c/h/Aaron-D-Scholl/
+      local url_kind_url = string.match(url, "[a-z]+%.[a-z]+.com/genealogy/([^/]+)/[^/]+/[^/]+/[^/]+/[^/]+/")
+      local url_first_url = string.match(url, "[a-z]+%.[a-z]+.com/genealogy/[^/]+/([^/]+)/[^/]+/[^/]+/[^/]+/")
+      local url_second_url = string.match(url, "[a-z]+%.[a-z]+.com/genealogy/[^/]+/[^/]+/([^/]+)/[^/]+/[^/]+/")
+      local url_third_url = string.match(url, "[a-z]+%.[a-z]+.com/genealogy/[^/]+/[^/]+/[^/]+/([^/]+)/[^/]+/")
+      local url_name_url = string.match(url, "[a-z]+%.[a-z]+.com/genealogy/[^/]+/[^/]+/[^/]+/[^/]+/([^/]+)/")
+      if url_kind_url ~= url_kind or
+        url_first_url ~= url_first or
+        url_second_url ~= url_second or
+        url_third_url ~= url_third or
+        url_name_url ~= url_name then
+        return false
+      else
+        return verdict
+      end
+    elseif string.match(url, "%.jpg") or
+      string.match(url, "%.gif") or
+      string.match(url, "%.png") then
+      return verdict
+    else
+      --example url: http://www.genealogy.com/users/s/c/h/Aaron-D-Scholl/
+      local url_kind_url = string.match(url, "[a-z]+%.[a-z]+.com/([^/]+)/[^/]+/[^/]+/[^/]+/[^/]+/")
+      local url_first_url = string.match(url, "[a-z]+%.[a-z]+.com/[^/]+/([^/]+)/[^/]+/[^/]+/[^/]+/")
+      local url_second_url = string.match(url, "[a-z]+%.[a-z]+.com/[^/]+/[^/]+/([^/]+)/[^/]+/[^/]+/")
+      local url_third_url = string.match(url, "[a-z]+%.[a-z]+.com/[^/]+/[^/]+/[^/]+/([^/]+)/[^/]+/")
+      local url_name_url = string.match(url, "[a-z]+%.[a-z]+.com/[^/]+/[^/]+/[^/]+/[^/]+/([^/]+)/")
+      if url_kind_url ~= url_kind or
+        url_first_url ~= url_first or
+        url_second_url ~= url_second or
+        url_third_url ~= url_third or
+        url_name_url ~= url_name then
+        return false
+      else
+        return verdict
+      end
+    end
+  else
+    return false
   end
 end
 
