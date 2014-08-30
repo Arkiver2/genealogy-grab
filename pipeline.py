@@ -180,7 +180,7 @@ class WgetArgs(object):
             "--tries", "inf",
             "--span-hosts",
             "--waitretry", "30",
-            "--domains", "genealogy.se",
+            "--domains", "genealogy.com,familyorigins.com",
             "--warc-file", ItemInterpolation("%(item_dir)s/%(warc_file_base)s"),
             "--warc-header", "operator: Archive Team",
             "--warc-header", "genealogy-dld-script-version: " + VERSION,
