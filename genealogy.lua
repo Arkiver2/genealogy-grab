@@ -2,12 +2,6 @@ local url_count = 0
 local tries = 0
 local item_type = os.getenv('item_type')
 local item_value = os.getenv('item_value')
-local url_kind = os.getenv('url_kind')
-local url_first = os.getenv('url_first')
-local url_second = os.getenv('url_second')
-local url_third = os.getenv('url_third')
-local url_name = os.getenv('url_name')
-
 
 read_file = function(file)
   if file then
@@ -55,6 +49,11 @@ wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_pars
   if item_type == "genealogy" or
     item_type == "familytreemaker" or
     item_type == "familyorigins" then
+    local url_kind = os.getenv('url_kind')
+    local url_first = os.getenv('url_first')
+    local url_second = os.getenv('url_second')
+    local url_third = os.getenv('url_third')
+    local url_name = os.getenv('url_name')
     if string.match(url, "%.genealogy%.com/genealogy/") or
       string.match(url, "%.familyorigins%.com/genealogy/")then
       --example url: http://www.genealogy.com/genealogy/users/s/c/h/Aaron-D-Scholl/
